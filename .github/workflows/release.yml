@@ -2,18 +2,18 @@ on:
   push:
     branches:
       - main
-      - "release/**"
+      - release/**
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - v*   # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
     branches:
       - main
-      - "release/**"
+      - release/**
 
 name: Release
 
 env:
-  GO_VERSION: "1.21.11"
+  GO_VERSION: 1.21.11
 
 permissions: # added using https://github.com/step-security/secure-workflows
   contents: read
