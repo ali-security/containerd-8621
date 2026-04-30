@@ -14,36 +14,12 @@ permissions: # added using https://github.com/step-security/secure-workflows
 
 jobs:
   #
-  # golangci-lint
-  #
-  linters:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      pull-requests: read # for golangci/golangci-lint-action to fetch pull requests
-    name: Linters
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
-
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, actuated-arm64-4cpu-16gb, macos-12, windows-2019]
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-go
-      - uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.56.1
-          skip-cache: true
-          args: --timeout=8m
-
-  #
   # Project checks
   #
   project:
     name: Project Checks
     if: github.repository == 'containerd/containerd'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
 
     steps:
@@ -70,7 +46,7 @@ jobs:
   #
   protos:
     name: Protobuf
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
 
     defaults:
@@ -104,7 +80,7 @@ jobs:
 
   man:
     name: Manpages
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
 
     steps:
@@ -117,8 +93,8 @@ jobs:
   # Well-known architectures are covered in release.yml.
   crossbuild:
     name: Crossbuild Binaries
-    needs: [project, linters, protos, man]
-    runs-on: ubuntu-20.04
+    needs: [project, protos, man]
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -186,11 +162,11 @@ jobs:
     name: Binaries
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
-    needs: [project, linters, protos, man]
+    needs: [project, protos, man]
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, actuated-arm64-4cpu-16gb, macos-12, windows-2019, windows-2022]
+        os: [ubuntu-22.04, actuated-arm64-4cpu-16gb, macos-12, windows-2019, windows-2022]
         go-version: ["1.21.11", "1.22.4"]
     steps:
       - uses: actions/checkout@v4
@@ -209,7 +185,7 @@ jobs:
     name: Windows Integration
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
-    needs: [project, linters, protos, man]
+    needs: [project, protos, man]
     env:
       GOTEST: gotestsum --
 
@@ -380,7 +356,7 @@ jobs:
     name: Linux Integration
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
-    needs: [project, linters, protos, man]
+    needs: [project, protos, man]
 
     strategy:
       fail-fast: false
@@ -391,7 +367,7 @@ jobs:
           - io.containerd.runc.v2
         runc: [runc, crun]
         enable_cri_sandboxes: ["", "sandboxed"]
-        os: [ubuntu-20.04, actuated-arm64-4cpu-16gb]
+        os: [ubuntu-22.04, actuated-arm64-4cpu-16gb]
         exclude:
           - runtime: io.containerd.runc.v1
             runc: crun
@@ -532,7 +508,7 @@ jobs:
     name: MacOS unit tests
     runs-on: macos-12
     timeout-minutes: 10
-    needs: [project, linters, protos, man]
+    needs: [project, protos, man]
     env:
       GOTEST: gotestsum --
 
